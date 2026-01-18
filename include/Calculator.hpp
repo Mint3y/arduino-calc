@@ -1,10 +1,13 @@
 #ifndef CALCULATOR_HPP
 #define CALCULATOR_HPP
 
+#include <cmath>
 #include <cstring>
 #include <cstdlib>
 #include <cctype>
 #include <unordered_map>
+
+#include <cassert>
 #include <iostream>
 
 // Max buffer size for a single expression
@@ -17,6 +20,7 @@ namespace calc {
 
 size_t starts_with_numeric(const char* str, size_t length);
 char filter_arithmetic_ops(char c);
+char filter_braces(char c);
 
 // TODO wrap everything in a class with getters, setters, is_number, is_operation
 struct Token {
@@ -47,12 +51,12 @@ struct Token {
     static std::unordered_map<FunctionType, size_t, FunctionTypeHash> FUNC_LENGTH_MAP;
 
     Type type;
-    union value {
+    size_t length;
+    union {
         double num;
         char op;
         // bool open_brace;
-    };
-    size_t length;
+    } value;
 };
 
 // // Binary Tree Node implementation
@@ -86,9 +90,9 @@ public:
     double evaluate() const;
 
 private:
-    Token eval(size_t start, const Token& lhs) const;
+    Token eval(Token lhs) const;
 
-    Token eval_operation(const Token& tok) const;
+    Token eval_operation(const Token& left, const Token& op, const Token& right) const;
     Token eval_function(const Token& tok) const;
     int priority(char op) const;
     bool is_closure(size_t index) const;
